@@ -186,7 +186,7 @@ def generate_exporter_report(수출자, df):
     )
 
     content = response.choices[0].message.content
-    
+    return content
 
 
 # 🏠 홈으로 돌아가기 버튼 클릭 시 세션 상태 초기화
@@ -678,5 +678,6 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
