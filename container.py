@@ -52,7 +52,7 @@ PREDEFINED_FILE_PATH = 'combined4.xlsx'
 @st.cache_data
 def load_data():
     try:
-        df = pd.read_excel(PREDEFINED_FILE_PATH, parse_dates=['선적일'])
+        df = pd.read_excel(PREDEFINED_FILE_PATH, parse_dates=['선적일'], engine='openpyxl')
         return df
     except Exception as e:
         st.error(f"파일 로드 중 오류 발생: {e}")
@@ -678,4 +678,5 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
