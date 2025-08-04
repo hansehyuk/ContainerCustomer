@@ -179,10 +179,11 @@ def generate_exporter_report(수출자, df):
     """
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": "Hello!"}
-        ]
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are an assistant that generates export container analysis reports."},
+        {"role": "user", "content": prompt}
+    ]
     )
 
     content = response.choices[0].message.content
@@ -678,6 +679,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
