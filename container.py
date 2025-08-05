@@ -444,7 +444,10 @@ def app():
                 grouped['순위'] = grouped['컨테이너수'].rank(ascending=False, method='min')
                 grouped = grouped[['순위', '수출자', '컨테이너수']].reset_index(drop=True)
                 total_customers = len(grouped)  # 총 고객 수 계산
-
+                
+                if 'show_actual_shippers' not in st.session_state:
+                st.session_state.show_actual_shippers = False
+                
                 st.write("✅ **고객 리스트**")
                 with st.expander(f"🔍 총 **{total_customers}**개 고객 확인", expanded=False):
                      st.write("", grouped)
@@ -727,6 +730,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
