@@ -213,11 +213,7 @@ def classify_actual_shippers(exporter_list):
     )
     
     content = response.choices[0].message.content.strip()
-    try:
-        return json.loads(content)
-    except json.JSONDecodeError as e:
-        st.error(f"⚠️ 다시 한 번 시도해주세요. : {e}")
-        return []
+
     
     # JSON 추출 처리 (간단한 문자열 파싱 기반)
     try:
@@ -733,6 +729,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
