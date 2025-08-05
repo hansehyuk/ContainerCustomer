@@ -9,6 +9,7 @@ import seaborn as sns
 import matplotlib.font_manager as fm
 import platform
 import textwrap
+import json
 
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
@@ -732,6 +733,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
