@@ -188,6 +188,38 @@ def generate_exporter_report(수출자, df):
 
     content = response.choices[0].message.content
     return content
+    
+# 🔍 실화주 분류 함수
+def classify_actual_shippers(exporter_list):
+    prompt = f"""
+    다음은 대한민국 수출자 리스트입니다. 각 수출자가 물류 회사인지, 아니면 실제 화주인지 분류해 주세요.
+    실제 화주는 제품을 직접 생산하거나 수출하는 기업입니다.
+    물류회사는 Freight Forwarder, Shipping Company, Logistics, Sea & Air 등입니다.
+
+    수출자 리스트:
+    {exporter_list}
+
+    물류회사가 아닌 실제 화주만 JSON 리스트로 알려 주세요.
+    형식: ["화주A", "화주B", ...]
+    """
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant for analyzing export companies."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    
+    content = response.choices[0].message.content
+    return content
+    
+    # JSON 추출 처리 (간단한 문자열 파싱 기반)
+    try:
+        actual_exporters = eval(result_text.strip())  # 예: ["삼성전자", "LG화학"]
+    except Exception:
+        actual_exporters = []
+    return actual_exporters
+
 
 
 # 🏠 홈으로 돌아가기 버튼 클릭 시 세션 상태 초기화
@@ -412,9 +444,25 @@ def app():
                 grouped['순위'] = grouped['컨테이너수'].rank(ascending=False, method='min')
                 grouped = grouped[['순위', '수출자', '컨테이너수']].reset_index(drop=True)
                 total_customers = len(grouped)  # 총 고객 수 계산
+
                 st.write("✅ **고객 리스트**")
                 with st.expander(f"🔍 총 **{total_customers}**개 고객 확인", expanded=False):
                      st.write("", grouped)
+                        # ▶ 버튼 클릭 시 GPT 요청하도록 구성
+                     if st.button("✨ AI 실화주 확인", key="check_actual_shippers"):
+                        if st.session_state.show_actual_shippers:
+                            with st.spinner("AI를 통해 실화주 분류 중입니다. "):
+                                exporters_list = grouped['수출자'].tolist()
+                                actual_shippers = classify_actual_shippers(exporters_list)
+
+                            if actual_shippers:
+                                    actual_df = grouped[grouped['수출자'].isin(actual_shippers)].copy()
+                                    st.success("AI를 통해 분류된 실화주 고객입니다.")
+                                    st.dataframe(actual_df)
+
+                            else:
+                                    st.warning("다시 한 번 시도해주세요.")
+                            st.session_state.show_actual_shippers = True
 
                 port_grouped = result_df.groupby('컨테이너선사').agg({'컨테이너수': 'sum'}).reset_index()                
                 port_grouped = port_grouped.sort_values(by='컨테이너수', ascending=False)
@@ -679,6 +727,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
