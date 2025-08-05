@@ -201,7 +201,9 @@ def classify_actual_shippers(exporter_list):
     수출자 리스트:
     {exporter_list}
 
-    물류회사가 아닌 실제 화주만 JSON 리스트로 알려 주세요.
+    물류회사가 아닌 실제 화주만 **순수 JSON 배열**로만 출력해 주세요. 예시: ["화주1", "화주2"]
+    절대 설명이나 말머리를 붙이지 마세요. JSON 외의 텍스트는 포함하지 마세요.
+    """
     형식: ["화주A", "화주B", ...]
     """
     response = client.chat.completions.create(
@@ -725,6 +727,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
