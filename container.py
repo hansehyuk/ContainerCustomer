@@ -465,7 +465,8 @@ def app():
                     
                         if actual_shippers:
                             actual_df = grouped[grouped['수출자'].isin(actual_shippers)].copy()
-                            st.success("AI를 통해 분류된 실화주 고객입니다.")
+                            num_actual = len(actual_df)
+                            st.success(f"AI를 통해 {num_actual}개의 실화주 고객이 확인되었습니다.")
                             st.dataframe(actual_df)
                         else:
                             st.warning("다시 한 번 시도해주세요.")
@@ -733,6 +734,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
