@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.font_manager as fm
 import platform
+import textwrap
 
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
@@ -206,7 +207,7 @@ def classify_actual_shippers(exporter_list):
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for analyzing export companies."},
-            {"role": "user", "content": prompt}
+            {"role": "user", textwrap.dedent(prompt)}
         ]
     )
     
@@ -730,6 +731,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
