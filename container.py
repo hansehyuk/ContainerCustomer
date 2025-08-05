@@ -207,7 +207,7 @@ def classify_actual_shippers(exporter_list):
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for analyzing export companies."},
-            {"role": "user", textwrap.dedent(prompt)}
+            {"role": "user", "content": textwrap.dedent(prompt)}
         ]
     )
     
@@ -731,6 +731,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
