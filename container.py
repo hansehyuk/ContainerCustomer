@@ -205,6 +205,7 @@ def classify_actual_shippers(exporter_list):
     절대 설명이나 말머리를 붙이지 마세요. JSON 외의 텍스트는 포함하지 마세요.
     
     형식: ["화주A", "화주B", ...]
+    """
     
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -727,6 +728,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
