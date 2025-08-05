@@ -454,19 +454,16 @@ def app():
                      st.write("", grouped)
                         # ▶ 버튼 클릭 시 GPT 요청하도록 구성
                      if st.button("✨ AI 실화주 확인", key="check_actual_shippers"):
-                        if st.session_state.show_actual_shippers:
-                            with st.spinner("AI를 통해 실화주 분류 중입니다. "):
-                                exporters_list = grouped['수출자'].tolist()
-                                actual_shippers = classify_actual_shippers(exporters_list)
-
-                            if actual_shippers:
-                                    actual_df = grouped[grouped['수출자'].isin(actual_shippers)].copy()
-                                    st.success("AI를 통해 분류된 실화주 고객입니다.")
-                                    st.dataframe(actual_df)
-
-                            else:
-                                    st.warning("다시 한 번 시도해주세요.")
-                            st.session_state.show_actual_shippers = True
+                        with st.spinner("AI를 통해 실화주 분류 중입니다."):
+                            exporters_list = grouped['수출자'].tolist()
+                            actual_shippers = classify_actual_shippers(exporters_list)
+                    
+                        if actual_shippers:
+                            actual_df = grouped[grouped['수출자'].isin(actual_shippers)].copy()
+                            st.success("AI를 통해 분류된 실화주 고객입니다.")
+                            st.dataframe(actual_df)
+                        else:
+                            st.warning("다시 한 번 시도해주세요.")
 
                 port_grouped = result_df.groupby('컨테이너선사').agg({'컨테이너수': 'sum'}).reset_index()                
                 port_grouped = port_grouped.sort_values(by='컨테이너수', ascending=False)
@@ -731,6 +728,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
