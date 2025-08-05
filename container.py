@@ -45,6 +45,13 @@ if not st.session_state.authorized:
             st.warning("등록된 아이디가 아닙니다. 관리자에게 문의하세요")
     
     st.image("pepe7.png", width=1600)
+    st.markdown("")
+    st.markdown(
+        "<p style='text-align: center; font-size: 12px; color: gray;'>"
+        "ⓒ 2025 Sehyuk Han<br>010-9013-2539<br>"    
+        "</p>",
+        unsafe_allow_html=True
+    )
     st.stop()
 
 # 📁 파일 경로 설정
@@ -518,6 +525,12 @@ def app():
         st.rerun()
      else:
         st.warning("수출자를 한 명 이상 선택해 주세요.")
+    with st.sidebar:
+     
+     st.markdown(
+        "<div style='font-size:11px; text-align:center; color:gray;'>ⓒ 2025 Sehyuk Han<br>010-9013-2539<br></div>",
+        unsafe_allow_html=True
+    )
     
     # 분석 결과 표시 (세션 상태 기반)
     if st.session_state.has_analysis_results and st.session_state.analysis_data:
@@ -728,6 +741,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
