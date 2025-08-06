@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.font_manager as fm
+import koreanize_matplotlib
 import platform
 import json
 from sklearn.metrics import mean_absolute_error
@@ -910,6 +911,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
