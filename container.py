@@ -12,7 +12,11 @@ import json
 from sklearn.metrics import mean_absolute_error
 from prophet import Prophet
 import os
- 
+
+plt.rc('font', family='DejaVu Sans')  # 설치 없이 한글 일부 표현 가능
+plt.rcParams['axes.unicode_minus'] = False
+
+'''
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
     plt.rc('font', family='Malgun Gothic')  # Windows
@@ -20,7 +24,7 @@ elif platform.system() == 'Darwin':
     plt.rc('font', family='AppleGothic')   # MacOS
 else:
     plt.rc('font', family='NanumGothic')   # 리눅스 (추가 설치 필요 가능)
-
+'''
 
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
@@ -910,6 +914,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
