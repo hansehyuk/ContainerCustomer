@@ -5,7 +5,7 @@ from openai import OpenAI
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib.font_manager as fm
+# import matplotlib.font_manager as fm
 import koreanize_matplotlib
 import platform
 import json
@@ -14,13 +14,13 @@ from prophet import Prophet
 import os
 
  
-# ✅ 한글 폰트 설정 (OS별로 처리)
-if platform.system() == 'Windows':
-    plt.rc('font', family='Malgun Gothic')  # Windows
-elif platform.system() == 'Darwin':
-    plt.rc('font', family='AppleGothic')   # MacOS
-else:
-    plt.rc('font', family='NanumGothic')   # 리눅스 (추가 설치 필요 가능)
+# # ✅ 한글 폰트 설정 (OS별로 처리)
+# if platform.system() == 'Windows':
+#     plt.rc('font', family='Malgun Gothic')  # Windows
+# elif platform.system() == 'Darwin':
+#     plt.rc('font', family='AppleGothic')   # MacOS
+# else:
+#     plt.rc('font', family='NanumGothic')   # 리눅스 (추가 설치 필요 가능)
 
 
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
@@ -911,6 +911,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
