@@ -789,6 +789,7 @@ def app():
                         [last_actual['월'], first_pred['월']],
                         [last_actual['실적'], first_pred['예측']],
                         linestyle='--',
+                        linewidth=1.0,
                         color='blue'
                     )
 
@@ -914,6 +915,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
