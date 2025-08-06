@@ -15,7 +15,7 @@ from prophet import Prophet
 import os
 
 # ✅ 다운로드 경로 설정
-font_url = "https://raw.githubusercontent.com/your-username/your-repo/main/NanumGothic.ttf"
+font_url = "https://github.com/hansehyuk/ContainerCustomer/main/NanumGothic.ttf"
 font_path = "/tmp/NanumGothic.ttf"
 
 # ✅ 폰트가 없다면 GitHub에서 다운로드
@@ -924,6 +924,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
