@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.font_manager as fm
+import urllib.request
 # import koreanize_matplotlib
 import platform
 import json
@@ -13,6 +14,18 @@ from sklearn.metrics import mean_absolute_error
 from prophet import Prophet
 import os
 
+# ✅ 다운로드 경로 설정
+font_url = "https://raw.githubusercontent.com/your-username/your-repo/main/NanumGothic.ttf"
+font_path = "/tmp/NanumGothic.ttf"
+
+# ✅ 폰트가 없다면 GitHub에서 다운로드
+if not os.path.exists(font_path):
+    urllib.request.urlretrieve(font_url, font_path)
+
+# ✅ matplotlib에 폰트 등록
+font_prop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = font_prop.get_name()
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 깨짐 방지
  
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
@@ -911,6 +924,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
