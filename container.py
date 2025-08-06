@@ -4,6 +4,7 @@ import numpy as np
 from openai import OpenAI
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 import matplotlib.font_manager as fm
 # import koreanize_matplotlib
@@ -13,7 +14,7 @@ from sklearn.metrics import mean_absolute_error
 from prophet import Prophet
 import os
 
-plt.rc('font', family='DejaVu Sans')  # 설치 없이 한글 일부 표현 가능
+mpl.rc('font', family='Malgun Gothic')  # 설치 없이 한글 일부 표현 가능
 plt.rcParams['axes.unicode_minus'] = False
 
 
@@ -914,6 +915,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
