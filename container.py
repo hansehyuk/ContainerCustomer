@@ -10,7 +10,17 @@ import platform
 import json
 from sklearn.metrics import mean_absolute_error
 from prophet import Prophet
+import os
+import subprocess
 
+# ✅ 한글 폰트 설치 (Streamlit Cloud에서만)
+if platform.system() == 'Linux':
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+    if not os.path.exists(font_path):
+        subprocess.run(["apt-get", "update"])
+        subprocess.run(["apt-get", "install", "-y", "fonts-nanum"])
+        subprocess.run(["fc-cache", "-fv"])
+        
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
     plt.rc('font', family='Malgun Gothic')  # Windows
@@ -22,6 +32,9 @@ else:
 plt.rcParams['axes.unicode_minus'] = False  # 마이너스 깨짐 방지
 
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+
+# ✅ 마이너스 깨짐 방지
+plt.rcParams['axes.unicode_minus'] = False
 
 # ✅ 인증 ID 목록
 ALLOWED_IDS = ['hansehyuk']
@@ -906,6 +919,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
