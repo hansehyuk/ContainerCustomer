@@ -3,13 +3,12 @@ import pandas as pd
 import numpy as np
 from openai import OpenAI
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.font_manager as fm
 import platform
-import textwrap
 import json
+from sklearn.metrics import mean_absolute_error
 
 # ✅ 한글 폰트 설정 (OS별로 처리)
 if platform.system() == 'Windows':
@@ -721,6 +720,171 @@ def app():
             # [7] Streamlit에 표시
             st.pyplot(fig)
 
+        
+        with st.expander("🧠 **향후 3개월 예측 확인**", expanded=False):
+                try:
+                    # ✅ 일자별 컨테이너 수 집계
+                    daily_df = filtered[['선적일', '컨테이너수']].copy()
+                    daily_df = daily_df.groupby('선적일').sum().reset_index()
+                    daily_df = daily_df.rename(columns={'선적일': 'ds', '컨테이너수': 'y'})
+
+                    # ✅ Prophet 모델 학습
+                    model = Prophet()
+                    model.fit(daily_df)
+
+                    # ✅ 향후 3개월 (90일) 예측
+                    future = model.make_future_dataframe(periods=90)
+                    forecast = model.predict(future)
+
+                    # [1] 실제값 월별 집계
+                    actual_df = daily_df.copy()
+                    actual_df['월'] = actual_df['ds'].dt.to_period('M').astype(str)
+                    monthly_actual = actual_df.groupby('월')['y'].sum().reset_index()
+                    monthly_actual = monthly_actual.rename(columns={'y': '실적'})
+
+                    # [2] 예측값 중 미래만 필터
+                    last_actual_date = daily_df['ds'].max()
+                    forecast_future = forecast[forecast['ds'] > last_actual_date].copy()
+                    forecast_future['월'] = forecast_future['ds'].dt.to_period('M').astype(str)
+                    monthly_forecast = forecast_future.groupby('월')['yhat'].sum().reset_index()
+                    monthly_forecast = monthly_forecast.rename(columns={'yhat': '예측'})
+
+                    # ✅ 예측값을 정수로 반올림
+                    monthly_forecast['예측'] = monthly_forecast['예측'].round(0).astype(int)
+                    # [3] 실적 + 예측 결합
+                    combined = pd.merge(monthly_actual, monthly_forecast, on='월', how='outer')
+
+                    # ✅ 예측 구간이 아닌 곳은 예측값 NaN 처리 (시각적으로 깔끔하게 분리됨)
+                    combined['예측'] = combined.apply(
+                        lambda row: row['예측'] if row['월'] in monthly_forecast['월'].values else None,
+                        axis=1
+                    )
+
+                    # ✅ 시각화
+                    fig2, ax2 = plt.subplots(figsize=(10, 4))
+
+                    # 1. 실적: 검정 실선
+                    ax2.plot(combined['월'], combined['실적'], marker='o', label='실적', color='black', linewidth=1.0)
+
+                    # 2. 예측: 파란 점선
+                    ax2.plot(combined['월'], combined['예측'], marker='o', linestyle='--', label='예측', color='blue', linewidth=1.0)
+
+                    # ✅ 3. 실적 → 예측 연결선
+                    # 실적 마지막 월과 값
+                    last_actual = combined[combined['실적'].notna()].iloc[-1]
+                    # 예측 첫 번째 월과 값
+                    first_pred = combined[combined['예측'].notna()].iloc[0]
+
+                    # 두 점만 있는 연결선 (점선, 파란색)
+                    ax2.plot(
+                        [last_actual['월'], first_pred['월']],
+                        [last_actual['실적'], first_pred['예측']],
+                        linestyle='--',
+                        color='blue'
+                    )
+
+                    # 스타일 유지
+                    ax2.set_title("")
+                    ax2.set_ylabel("")
+                    ax2.legend()
+                    plt.xticks(rotation=45)
+                    st.pyplot(fig2)
+
+                    # ✅ 표 출력
+                    def format_container_value(row):
+                        if not pd.isna(row['실적']):
+                            return f"{int(row['실적']):,}"
+                        elif not pd.isna(row['예측']):
+                            return f"<span style='color:blue'>{int(row['예측']):,}</span>"
+                        else:
+                            return "-"
+
+                    combined['컨테이너 수'] = combined.apply(format_container_value, axis=1)
+
+                    
+                    # ✅ HTML 테이블로 출력 (헤더 줄바꿈 방지 포함)ㄹ
+                    # pivot_table는 이미 아래와 같이 만들어졌다고 가정
+                    pivot_table = combined.set_index('월')[['컨테이너 수']].T
+
+                    # 줄바꿈 제거한 HTML 문자열
+                    styled_table = (
+                        "<style>"
+                        "table {"
+                        "  border-collapse: collapse;"
+                        "}"
+                        "th, td {"
+                        "  border: 1.5px solid #000000;"
+                        "  padding: 3px;"
+                        "  font-size: 12px;"
+                        "  font-weight: normal;"
+                        "  text-align: center;"
+                        "  white-space: nowrap;"
+                        "}"
+                        "</style>"
+                        + pivot_table.to_html(escape=False, border=0)
+                    )
+                    st.markdown(styled_table, unsafe_allow_html=True)
+
+                    # ✅ 최근 30일을 평가용으로 사용
+                    # Prophet은 미래만 예측하므로, 예측 가능한 과거도 포함하여 테스트
+
+                    # Step 1. 최근 30일간 실제값
+                    test_df = daily_df.copy()
+                    test_df = test_df.sort_values('ds').reset_index(drop=True)
+                    test_range = test_df.tail(30)
+                    last_date = test_range['ds'].max()
+
+                    # Step 2. Prophet 학습용 데이터 (최근 30일을 예측 대상으로 제외)
+                    train_df = test_df[test_df['ds'] < test_range['ds'].min()]
+
+                    # Step 3. 모델 재학습
+                    model_eval = Prophet()
+                    model_eval.fit(train_df)
+
+                    # Step 4. 평가용 예측
+                    future_eval = model_eval.make_future_dataframe(periods=30)
+                    forecast_eval = model_eval.predict(future_eval)
+
+                    # Step 5. 예측 결과 중 테스트 날짜만 추출
+                    pred_30 = forecast_eval[forecast_eval['ds'].isin(test_range['ds'])]
+                    y_true = test_range['y'].values
+                    y_pred = pred_30['yhat'].values
+
+                    # Step 6. MAE 계산
+                    mae = mean_absolute_error(y_true, y_pred)
+                    mae_int = int(round(mae, 0))
+
+                    # Step 7. 사용자에게 출력
+                    st.markdown(f"""
+                    <div style="font-size:14px; line-height:1.8; color: blue;">
+                    🧠 <b>예측 모델</b><br>              
+                    </div>
+                    """, unsafe_allow_html=True)   
+
+                    st.markdown(f"""
+                    <div style="font-size:14px; line-height:1.8; margin-left: 20px;">
+                      - 머신러닝 기반 시계열 예측 모델: Prophet (by Meta/Facebook)<br>
+                      - 조건 기간에 포함된 고객 데이터를 학습하여, 향후 3개월 컨테이너 수를 예측합니다.<br>                
+                      - 평균 절대 오차(MAE): {mae_int:,}대 
+                      (최근 30일 실제 데이터 분석 결과, 평균 오차는 약 {mae_int}대입니다.
+                    <br><br>
+                    
+                    </div>
+                    """, unsafe_allow_html=True)       
+                except Exception as e:
+                    st.error(f"예측 분석 중 오류 발생: {e}")
+
+
+
+        
+
+
+
+
+
+
+
+        
         st.markdown(
           "<hr style='margin-top: 10px; margin-bottom: 10px;'>",
                unsafe_allow_html=True
@@ -741,6 +905,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
