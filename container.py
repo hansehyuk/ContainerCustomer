@@ -41,7 +41,7 @@ if 'authorized' not in st.session_state:
 if not st.session_state.authorized:
     # 라이트 모드 스타일 적용
     # apply_light_theme()  # 기존에 있으면 활성화
-    st.header("DATA & AI 활용 국내 수출 컨테이너 고객 분석")
+    st.header("🧠 DATA & AI 활용 컨테이너 수출 영업 솔루션")
     
     user_id = st.text_input("🔐 허가된 사람만 입장 가능합니다. 아이디를 입력하세요.")
    
@@ -915,6 +915,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
