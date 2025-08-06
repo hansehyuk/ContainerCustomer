@@ -773,10 +773,10 @@ def app():
                     fig2, ax2 = plt.subplots(figsize=(10, 4))
 
                     # 1. 실적: 검정 실선
-                    ax2.plot(combined['월'], combined['실적'], marker='o', label='실적', color='black', linewidth=1.0)
+                    ax2.plot(combined['월'], combined['실적'], marker='o', label='ACT', color='black', linewidth=1.0)
 
                     # 2. 예측: 파란 점선
-                    ax2.plot(combined['월'], combined['예측'], marker='o', linestyle='--', label='예측', color='blue', linewidth=1.0)
+                    ax2.plot(combined['월'], combined['예측'], marker='o', linestyle='--', label='FCST', color='blue', linewidth=1.0)
 
                     # ✅ 3. 실적 → 예측 연결선
                     # 실적 마지막 월과 값
@@ -914,6 +914,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
