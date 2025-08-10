@@ -319,20 +319,6 @@ def app():
             st.session_state.authorized = False
             st.rerun()
 
-    if not st.session_state.authorized:
-        st.title("\ud83d\udce6 \uad6d\ub0b4 \ucee8\ud14c\uc774\ub108 \uc218\ucd9c \uace0\uac1d \uac80\uc0c9\uae30")
-        user_id = st.text_input("\ud83d\udd10 \ud5c8\uac00\ub41c \uc0ac\ub78c\ub9cc \uc785\uc7a5 \uac00\ub2a5\ud569\ub2c8\ub2e4. \uc544\uc774\ub514\ub97c \uc785\ub825\ud558\uc138\uc694.")
-
-        if st.button("\uc785\uc7a5"):
-            if user_id in ALLOWED_IDS:
-                st.session_state.authorized = True
-                st.rerun()
-            else:
-                st.warning("\ub4f1\ub85d\ub41c \uc544\uc774\ub514\uac00 \uc544\ub2c8\ub2e4\ub124\uc694. \uad00\ub9ac\uc790\uc5d0\uac8c \ubb38\uc758\ud574\uc8fc\uc138\uc694")
-
-        st.image("pepe7.png", width=1600)
-        st.stop()
-
  
 
 
@@ -936,6 +922,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
