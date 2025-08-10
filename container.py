@@ -85,7 +85,7 @@ def show_login():
         """,
         unsafe_allow_html=True,
     )
-    st.markdown("---")
+    st.image("slogan.jpg")
     st.markdown(
         "<p style='text-align: center; font-size: 12px; color: gray;'>"
         "© 2025 Created by Sehyuk Han"
@@ -196,7 +196,7 @@ def show_data_overview(df, start_date=None, end_date=None):
     st.write("")
     try:
         st.image("pepe7.png", width=700)
-        st.image("slogan.jpg", width=700)
+        
     except Exception:
         st.info("참고 이미지( pepe7.png )가 없으면 이 메시지가 보일 수 있습니다.")
 
@@ -928,6 +928,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
