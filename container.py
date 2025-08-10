@@ -197,21 +197,40 @@ def show_data_overview(df, start_date=None, end_date=None):
     st.write("")
     video_url = "https://raw.githubusercontent.com/hansehyuk/ContainerCustomer/main/video2.mp4"
 
-    # HTML로 자동재생 + 소리 ON + 반복 재생
+    # HTML로 무음 자동재생 + 꽉찬 화면
     st.markdown(
         f"""
-        <video width="100%" height="auto" autoplay controls muted="false" loop>
-            <source src="{video_url}" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+        <style>
+        .video-container {{
+            position: relative;
+            width: 100%;
+            height: 100vh; /* 브라우저 창 높이 꽉 채움 */
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }}
+        .video-container video {{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }}
+        </style>
+    
+        <div class="video-container">
+            <video autoplay muted playsinline loop>
+                <source src="{video_url}#t=0.001" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
         """,
         unsafe_allow_html=True
     )
-    try:
-        st.image("pepe7.png", width=700)
-        
-    except Exception:
-        st.info("참고 이미지( pepe7.png )가 없으면 이 메시지가 보일 수 있습니다.")
 
 
 def filter_data(df, start_date, end_date, loading_port, arrival_port, arrival_country, min_containers):
@@ -941,6 +960,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
