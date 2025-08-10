@@ -195,7 +195,7 @@ def show_data_overview(df, start_date=None, end_date=None):
     )
 
     st.write("")
-    video_url = "https://raw.githubusercontent.com/hansehyuk/ContainerCustomer/main/videos/video2.mp4"
+    video_url = "https://raw.githubusercontent.com/hansehyuk/ContainerCustomer/main/video2.mp4"
 
     # HTML로 자동재생 + 소리 ON + 반복 재생
     st.markdown(
@@ -941,6 +941,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
