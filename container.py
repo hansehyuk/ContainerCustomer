@@ -13,80 +13,82 @@ from sklearn.metrics import mean_absolute_error
 from prophet import Prophet
 import os
 
+# =======================================
+# 기본 설정 (폰트/마이너스 깨짐 방지)
+# =======================================
 plt.rc('font', family='Malgun Gothic')  # 설치 없이 한글 일부 표현 가능
 plt.rcParams['axes.unicode_minus'] = False
 
-
-# # ✅ 한글 폰트 설정 (OS별로 처리)
-# if platform.system() == 'Windows':
-#     plt.rc('font', family='Malgun Gothic')  # Windows
-# elif platform.system() == 'Darwin':
-#     plt.rc('font', family='AppleGothic')   # MacOS
-# else:
-#     plt.rc('font', family='NanumGothic')   # 리눅스 (추가 설치 필요 가능)
-
-
+# =======================================
+# OpenAI 클라이언트
+# =======================================
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
-# ✅ 마이너스 깨짐 방지
-plt.rcParams['axes.unicode_minus'] = False
-
-# ✅ 인증 ID 목록
+# =======================================
+# 인증 ID 목록
+# =======================================
 ALLOWED_IDS = ['hansehyuk']
 
-# 🔐 사용자 인증
+# =======================================
+# 세션 상태 기본값
+# =======================================
 if 'authorized' not in st.session_state:
     st.session_state.authorized = False
+if 'home_clicked' not in st.session_state:
+    st.session_state.home_clicked = False
 
-if not st.session_state.authorized:
-    # 라이트 모드 스타일 적용 (필요 시)
+# =======================================
+# 로그인 화면 (단일화)
+#  - Enter 키 제출을 위해 st.form 사용
+#  - 여기서 렌더링을 멈추기 위해 st.stop() 호출 (핵심)
+# =======================================
+
+def show_login():
     st.header("⚓ Korea Container Export Customer Search")
 
-    # ✅ 같은 행에 텍스트 입력과 버튼 배치
-    col1, col2 = st.columns([9, 1])  # 비율 조절 가능 (입력:버튼 = 4.2:1)
-
-    with col1:
+    with st.form("login_form", clear_on_submit=False):
         user_id = st.text_input(
-                label="Please enter your ID",         # 시각장애인 접근성 등을 위해 유지
-                label_visibility="collapsed",            # 라벨 숨김
-                placeholder="Please enter your ID"    # 입력창 안에 표시될 텍스트
-            )
+            label="Please enter your ID",
+            label_visibility="collapsed",
+            placeholder="Please enter your ID",
+            key="login_user_id",
+        )
+        submitted = st.form_submit_button("Enter", use_container_width=True)
 
-    with col2:
-        if st.button("Enter"):
-            if user_id in ALLOWED_IDS:
-                st.session_state.authorized = True
-                st.rerun()
-    if user_id and user_id not in ALLOWED_IDS:
-        st.warning("Unregistered ID. Please contact the administrator.")            
+    if submitted:
+        if user_id in ALLOWED_IDS:
+            st.session_state.authorized = True
+            st.rerun()
+        elif user_id:
+            st.warning("Unregistered ID. Please contact the administrator.")
 
-
-        
-    # YouTube 영상 자동재생 (POSCO FLOW 컨테이너 배경, 테두리 제거)
+    # YouTube 배경
     youtube_url = "https://www.youtube.com/embed/dk4ePpIkgH8?autoplay=1&mute=1&loop=1&playlist=dk4ePpIkgH8"
-
     st.markdown(
         f"""
         <style>
-            iframe {{
-                border: none !important;
-            }}
+            iframe {{ border: none !important; }}
         </style>
         <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;">
-            <iframe src="{youtube_url}" 
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;" 
-                    allow="autoplay; encrypted-media" 
+            <iframe src="{youtube_url}"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                    allow="autoplay; encrypted-media"
                     allowfullscreen>
             </iframe>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-# 📁 파일 경로 설정
+    # 🔴 이후 렌더링 중단 (중요)
+    st.stop()
+
+
+# =======================================
+# 데이터 관련 설정/함수
+# =======================================
 PREDEFINED_FILE_PATH = 'combined4.xlsx'
 
-# 📄 데이터 로드
 @st.cache_data
 def load_data():
     try:
@@ -95,19 +97,15 @@ def load_data():
     except Exception as e:
         st.error(f"파일 로드 중 오류 발생: {e}")
         return None
-    
 
 
-# 📊 데이터 개요 대시보드 함수
 def show_data_overview(df, start_date=None, end_date=None):
-    
-    
     # 날짜가 없으면 데이터 기준 min/max로 설정
     if start_date is None:
         start_date = df['선적일'].min()
     if end_date is None:
         end_date = df['선적일'].max()
-    
+
     # 날짜 문자열 포맷팅 (datetime -> yyyy-mm-dd)
     start_str = start_date.strftime("%Y-%m-%d") if hasattr(start_date, 'strftime') else str(start_date)
     end_str = end_date.strftime("%Y-%m-%d") if hasattr(end_date, 'strftime') else str(end_date)
@@ -123,52 +121,73 @@ def show_data_overview(df, start_date=None, end_date=None):
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
-    col1.markdown("""
-    <div style='text-align: center;'>
-        📄 <b>선적 건</b><br>
-        <span style='font-size: 20px;'>{:,}</span>
-    </div>
-    """.format(total_records), unsafe_allow_html=True)
+    col1.markdown(
+        """
+        <div style='text-align: center;'>
+            📄 <b>선적 건</b><br>
+            <span style='font-size: 20px;'>{:,}</span>
+        </div>
+        """.format(total_records),
+        unsafe_allow_html=True,
+    )
 
-    col2.markdown("""
-    <div style='text-align: center;'>
-        👤 <b>수출자</b><br>
-        <span style='font-size: 20px;'>{:,}</span>
-    </div>
-    """.format(total_exporters), unsafe_allow_html=True)
+    col2.markdown(
+        """
+        <div style='text-align: center;'>
+            👤 <b>수출자</b><br>
+            <span style='font-size: 20px;'>{:,}</span>
+        </div>
+        """.format(total_exporters),
+        unsafe_allow_html=True,
+    )
 
-    col3.markdown("""
-    <div style='text-align: center;'>
-        📦 <b>컨테이너</b><br>
-        <span style='font-size: 20px;'>{:,}</span>
-    </div>
-    """.format(total_containers), unsafe_allow_html=True)
+    col3.markdown(
+        """
+        <div style='text-align: center;'>
+            📦 <b>컨테이너</b><br>
+            <span style='font-size: 20px;'>{:,}</span>
+        </div>
+        """.format(total_containers),
+        unsafe_allow_html=True,
+    )
 
-    col4.markdown("""
-    <div style='text-align: center;'>
-        ⚓ <b>선적항</b><br>
-        <span style='font-size: 20px;'>{}</span>
-    </div>
-    """.format(total_loading_ports), unsafe_allow_html=True)
+    col4.markdown(
+        """
+        <div style='text-align: center;'>
+            ⚓ <b>선적항</b><br>
+            <span style='font-size: 20px;'>{}</span>
+        </div>
+        """.format(total_loading_ports),
+        unsafe_allow_html=True,
+    )
 
-    col5.markdown("""
-    <div style='text-align: center;'>
-        🌍 <b>도착지국가</b><br>
-        <span style='font-size: 20px;'>{}</span>
-    </div>
-    """.format(total_countries), unsafe_allow_html=True)
+    col5.markdown(
+        """
+        <div style='text-align: center;'>
+            🌍 <b>도착지국가</b><br>
+            <span style='font-size: 20px;'>{}</span>
+        </div>
+        """.format(total_countries),
+        unsafe_allow_html=True,
+    )
 
-    col6.markdown("""
-    <div style='text-align: center;'>
-        ⚓ <b>도착항</b><br>
-        <span style='font-size: 20px;'>{}</span>
-    </div>
-    """.format(total_arrival_ports), unsafe_allow_html=True)
+    col6.markdown(
+        """
+        <div style='text-align: center;'>
+            ⚓ <b>도착항</b><br>
+            <span style='font-size: 20px;'>{}</span>
+        </div>
+        """.format(total_arrival_ports),
+        unsafe_allow_html=True,
+    )
 
     st.write("")
-    st.image("pepe5.png", width=700)
+    try:
+        st.image("pepe5.png", width=700)
+    except Exception:
+        st.info("참고 이미지( pepec5.png )가 없으면 이 메시지가 보일 수 있습니다.")
 
-# 🔍 조건 기반 필터링 함수
+
 def filter_data(df, start_date, end_date, loading_port, arrival_port, arrival_country, min_containers):
     df = df[(df['선적일'] >= pd.to_datetime(start_date)) & (df['선적일'] <= pd.to_datetime(end_date))]
 
@@ -184,6 +203,7 @@ def filter_data(df, start_date, end_date, loading_port, arrival_port, arrival_co
     filtered_df = df[df['수출자'].isin(grouped['수출자'])]
 
     return filtered_df
+
 
 def generate_exporter_report(수출자, df):
     exporter_data = df[df['수출자'] == 수출자]
@@ -201,9 +221,9 @@ def generate_exporter_report(수출자, df):
     보고서 내용은 기업 개요, 컨테이너 수출 현황, 물류 영업 전략, 컨테이너 선사 협력 전략 네 부분으로 나눠서 작성해야 합니다.
     기업 개요는 주요 사업이나 제품에 대해서 간단하게 설명해주세요.
 
-    - 컨테이너 선적 기간: {exporter_data['선적일'].min().date()} ~ {exporter_data['선적일'].max().date()} 
+    - 컨테이너 선적 기간: {exporter_data['선적일'].min().date()} ~ {exporter_data['선적일'].max().date()}
     - 총 수출한 컨테이너 수: {total_containers}
-    - 선적항별 컨테이너 수: {exporter_data.groupby('선적항')['컨테이너수'].sum().to_dict()} 
+    - 선적항별 컨테이너 수: {exporter_data.groupby('선적항')['컨테이너수'].sum().to_dict()}
     - 컨테이너 수출 국가: {exporter_data['도착지국가'].unique().tolist()}
     - 컨테이너 수출 상위 5개 도착지국가: {main_country}
     - 컨테이너 수출 상위 5개 도착항: {main_routes}
@@ -217,17 +237,17 @@ def generate_exporter_report(수출자, df):
     """
 
     response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are an assistant that generates export container analysis reports."},
-        {"role": "user", "content": prompt}
-    ]
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an assistant that generates export container analysis reports."},
+            {"role": "user", "content": prompt},
+        ],
     )
 
     content = response.choices[0].message.content
     return content
-    
-# 🔍 실화주 분류 함수
+
+
 def classify_actual_shippers(exporter_list):
     prompt = f"""
     다음은 대한민국 수출자 리스트입니다. 각 수출자가 물류 회사인지, 아니면 실제 화주인지 분류해 주세요.
@@ -242,25 +262,22 @@ def classify_actual_shippers(exporter_list):
     
     형식: ["화주A", "화주B", ...]
     """
-    
+
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant for analyzing export companies."},
-            {"role": "user", "content": prompt}
-        ]
+            {"role": "user", "content": prompt},
+        ],
     )
-    
+
     content = response.choices[0].message.content.strip()
     return json.loads(content)
-    
 
 
+# 홈으로 돌아가기 (세션 초기화)
 
-
-# 🏠 홈으로 돌아가기 버튼 클릭 시 세션 상태 초기화
 def reset_to_home():
-
     if 'authorized' not in st.session_state:
         st.session_state.authorized = False  # 비정상 접근 방지
 
@@ -277,85 +294,49 @@ def reset_to_home():
     st.session_state.arrival_port = 'All'
     st.session_state.min_containers = 0
     st.session_state.home_clicked = True
-    
-    # 사이드바 조건들 초기화 (데이터 로드 후 기본값으로 설정됨)
-    if 'start_date' in st.session_state:
-        del st.session_state.start_date
-    if 'end_date' in st.session_state:
-        del st.session_state.end_date
-    if 'loading_port' in st.session_state:
-        del st.session_state.loading_port
-    if 'arrival_country' in st.session_state:
-        del st.session_state.arrival_country
-    if 'arrival_port' in st.session_state:
-        del st.session_state.arrival_port
-    if 'min_containers' in st.session_state:
-        del st.session_state.min_containers
-    if 'exporters' in st.session_state:
-        del st.session_state.exporters
 
-# 🧭 Streamlit 앱 UI
+    # 사이드바 조건들 초기화
+    for key in [
+        'start_date', 'end_date', 'loading_port', 'arrival_country',
+        'arrival_port', 'min_containers', 'exporters',
+    ]:
+        if key in st.session_state:
+            del st.session_state[key]
+
+
+# =======================================
+# 메인 앱
+#  - 로그인 중복 제거 (show_login만 사용)
+#  - 인증 전: show_login() -> st.stop()
+# =======================================
 
 def app():
-    # ✅ 1. 홈 버튼 클릭 감지 및 처리
-    if 'home_clicked' not in st.session_state:
-        st.session_state.home_clicked = False
-
-    if "home" in st.query_params:        
+    # 쿼리 파라미터에 home 있으면 홈 초기화
+    if "home" in st.query_params:
         reset_to_home()
 
-    # 🔐 인증 확인
-    if 'authorized' not in st.session_state:
-        st.session_state.authorized = False
+    # 인증 확인 (여기서는 새 로그인 UI를 만들지 않음)
+    if not st.session_state.get('authorized', False):
+        show_login()  # 방어적 호출
 
-    # 홈 버튼을 누른 경우 인증 상태는 유지하고 초기화만 수행
-    if st.session_state.home_clicked:
-        if st.session_state.get("authorized", False):
-            st.session_state.home_clicked = False
-            st.rerun()
-        else:
-            # 비인증 상태일 경우, 로그인으로 이동
-            st.session_state.home_clicked = False
-            st.session_state.authorized = False
-            st.rerun()
-
-    if not st.session_state.authorized:
-        st.title("📦 글로벌 실시간 수출 계약 검색기")
-        user_id = st.text_input("🔐 적합한 사용자만 가입 가능합니다. 아이디를 입력해주세요.")
-
-        if st.button("Enter"):
-            if user_id in ALLOWED_IDS:
-                st.session_state.authorized = True
-                st.rerun()
-            else:
-                st.warning("등록된 아이디가 아닙니다. 관리자에게 문의해주세요.")
-
-        st.image("pepe7.png", width=1600)
-        st.stop()
-
-
-    # 검색 결과나 분석 결과가 있을 때는 타이틀 숨김
+    # ---- 여기부터 대시보드 ----
     if not st.session_state.get('has_search_results', False) and not st.session_state.get('has_analysis_results', False):
         st.header("Data & AI 활용 국내 수출 컨테이너 고객 분석")
-        st.markdown(
-          "<hr style='margin-top: 10px; margin-bottom: 10px;'>",
-               unsafe_allow_html=True
-                    )
-        
+        st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
+
     with st.spinner("⏳ 조금만 기다려주세요. 데이터 로딩 중입니다. (1분 정도 소요됩니다)"):
         df = load_data()
     if df is None:
         return
 
-    # 세션 상태 초기화
-    if 'has_search_results' not in st.session_state:
-        st.session_state.has_search_results = False
-    if 'has_analysis_results' not in st.session_state:
-        st.session_state.has_analysis_results = False
-    if 'analysis_data' not in st.session_state:
-        st.session_state.analysis_data = None
-
-    
+    # 세션 키 기본값 설정
+    for key, val in {
+        'has_search_results': False,
+        'has_analysis_results': False,
+        'analysis_data': None,
+    }.items():
+        if key not in st.session_state:
+            st.session_state[key] = val
 
     min_date = df['선적일'].min()
     max_date = df['선적일'].max()
@@ -367,7 +348,7 @@ def app():
         'arrival_country': 'All',
         'arrival_port': 'All',
         'min_containers': 0,
-        'exporters': []
+        'exporters': [],
     }
     for key, val in default_keys.items():
         if key not in st.session_state:
@@ -934,6 +915,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
