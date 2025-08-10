@@ -195,6 +195,18 @@ def show_data_overview(df, start_date=None, end_date=None):
     )
 
     st.write("")
+    video_url = "https://raw.githubusercontent.com/hansehyuk/ContainerCustomer/main/videos/video2.mp4"
+
+    # HTML로 자동재생 + 소리 ON + 반복 재생
+    st.markdown(
+        f"""
+        <video width="100%" height="auto" autoplay controls muted="false" loop>
+            <source src="{video_url}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        """,
+        unsafe_allow_html=True
+    )
     try:
         st.image("pepe7.png", width=700)
         
@@ -929,6 +941,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
