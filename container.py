@@ -403,7 +403,7 @@ def app():
     container_index = container_values.index(st.session_state.min_containers) if st.session_state.min_containers in container_values else 0
     st.session_state.min_containers = st.sidebar.selectbox("📦 최소 컨테이너 수", container_values, index=container_index)
 
-    if st.sidebar.button("고객 검색", use_container_width=True, key="search_btn"):
+    if st.sidebar.button("고객 검색", use_container_width=True):
         st.session_state.has_search_results = True
         st.session_state.has_analysis_results = False  # 검색할 때는 분석 결과 숨김3
         st.session_state.analysis_data = None
@@ -520,7 +520,7 @@ def app():
     else:
         st.session_state.exporters = []
     
-    if st.sidebar.button("고객 분석", use_container_width=True, key="search_btn"):
+    if st.sidebar.button("고객 분석", use_container_width=True):
      if st.session_state.exporters:
         st.session_state.has_analysis_results = True
         st.session_state.has_search_results = False
@@ -925,6 +925,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
