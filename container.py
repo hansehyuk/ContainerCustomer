@@ -319,7 +319,19 @@ def app():
             st.session_state.authorized = False
             st.rerun()
 
- 
+    if not st.session_state.authorized:
+        st.title("📦 글로벌 실시간 수출 계약 검색기")
+        user_id = st.text_input("🔐 적합한 사용자만 가입 가능합니다. 아이디를 입력해주세요.")
+
+        if st.button("Enter"):
+            if user_id in ALLOWED_IDS:
+                st.session_state.authorized = True
+                st.rerun()
+            else:
+                st.warning("등록된 아이디가 아닙니다. 관리자에게 문의해주세요.")
+
+        st.image("pepe7.png", width=1600)
+        st.stop()
 
 
     # 검색 결과나 분석 결과가 있을 때는 타이틀 숨김
@@ -922,6 +934,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
