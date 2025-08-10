@@ -88,7 +88,7 @@ def show_login():
     st.markdown("---")
     st.markdown(
         "<p style='text-align: center; font-size: 12px; color: gray;'>"
-        "© 2025 POSCO FLOW | Created by Sehyuk Han | sh.han@poscoflow.com | 010-9013-2539"
+        "© 2025 Created by Sehyuk Han"
         "</p>",
         unsafe_allow_html=True
     )
@@ -928,6 +928,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
