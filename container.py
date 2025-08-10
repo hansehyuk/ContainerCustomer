@@ -85,6 +85,7 @@ def show_login():
         """,
         unsafe_allow_html=True,
     )
+    st.markdown("")
     st.image("slogan.jpg")
     st.markdown(
         "<p style='text-align: center; font-size: 12px; color: gray;'>"
@@ -928,6 +929,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
