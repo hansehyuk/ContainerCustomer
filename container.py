@@ -195,7 +195,7 @@ def show_data_overview(df, start_date=None, end_date=None):
     )
 
     st.write("")    
-    st.image(r"C:\\Users\\hanse\\Desktop\\combine\\pepe5.png", width=700)
+    st.image("pepe5.png", width=700)
 
 
 def filter_data(df, start_date, end_date, loading_port, arrival_port, arrival_country, min_containers):
@@ -925,6 +925,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
