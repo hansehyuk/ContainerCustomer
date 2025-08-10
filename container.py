@@ -46,16 +46,22 @@ if 'home_clicked' not in st.session_state:
 def show_login():
     st.header("⚓ Korea Container Export Customer Search")
 
-    with st.form("login_form", clear_on_submit=False):
+    # 한 행에 ID 입력칸과 버튼 배치
+    col1, col2 = st.columns([9, 1])  # 비율은 필요에 따라 조정 가능
+
+    with col1:
         user_id = st.text_input(
             label="Please enter your ID",
             label_visibility="collapsed",
             placeholder="Please enter your ID",
             key="login_user_id",
         )
-        submitted = st.form_submit_button("Enter", use_container_width=True)
 
-    if submitted:
+    with col2:
+        enter_clicked = st.button("Enter", use_container_width=True)
+
+    # 버튼 클릭 시 인증 처리
+    if enter_clicked:
         if user_id in ALLOWED_IDS:
             st.session_state.authorized = True
             st.rerun()
@@ -79,6 +85,7 @@ def show_login():
         """,
         unsafe_allow_html=True,
     )
+    st.markdown("")
     st.markdown(
         "<p style='text-align: center; font-size: 12px; color: gray;'>"
         "© 2025 POSCO FLOW | Created by Sehyuk Han | sh.han@poscoflow.com | 010-9013-2539"
@@ -921,6 +928,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
