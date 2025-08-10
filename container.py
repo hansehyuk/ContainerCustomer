@@ -79,7 +79,12 @@ def show_login():
         """,
         unsafe_allow_html=True,
     )
-
+    st.markdown(
+        "<p style='text-align: center; font-size: 12px; color: gray;'>"
+        "© 2025 POSCO FLOW | Created by Sehyuk Han | sh.han@poscoflow.com | 010-9013-2539"
+        "</p>",
+        unsafe_allow_html=True
+    )
     # 🔴 이후 렌더링 중단 (중요)
     st.stop()
 
@@ -183,9 +188,10 @@ def show_data_overview(df, start_date=None, end_date=None):
 
     st.write("")
     try:
-        st.image("pepe5.png", width=700)
+        st.image("pepe7.png", width=700)
+        st.image("slogan.jpg", width=700)
     except Exception:
-        st.info("참고 이미지( pepec5.png )가 없으면 이 메시지가 보일 수 있습니다.")
+        st.info("참고 이미지( pepe7.png )가 없으면 이 메시지가 보일 수 있습니다.")
 
 
 def filter_data(df, start_date, end_date, loading_port, arrival_port, arrival_country, min_containers):
@@ -536,7 +542,7 @@ def app():
     with st.sidebar:
      
      st.markdown(
-        "<div style='font-size:11px; text-align:center; color:gray;'>ⓒ 2025 Sehyuk Han<br>010-9013-2539<br></div>",
+        "<div style='font-size:11px; text-align:center; color:gray;'>ⓒ 2025 Sehyuk Han</div>",
         unsafe_allow_html=True
     )
     
@@ -915,6 +921,7 @@ def app():
 
 if __name__ == "__main__":
     app()
+
 
 
 
